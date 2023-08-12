@@ -43,7 +43,9 @@ def welcome():
         f"Available Routes:<br/>"
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/&lt;start&gt;<br/>"
+        f"/api/v1.0/&lt;start&gt;/&lt;end&gt;"
     )
 
 # Route to get precipitation data
@@ -122,12 +124,12 @@ def tobs():
 
 
 # Route to calculate temperature statistics (TMIN, TAVG, TMAX) starting from a given start date
-@app.route("/api/v1.0/<start_date>")
-def calc_temps_start(start_date):
-    """Return the JSON representation of temperature statistics (TMIN, TAVG, TMAX) for a list of dates starting from a given start_date."""
-    # Query temperature statistics for dates greater than or equal to the specified start_date
+@app.route("/api/v1.0/<start>")
+def calc_temps_start(start):
+    """Return the JSON representation of temperature statistics (TMIN, TAVG, TMAX) for a list of dates starting from a given start."""
+    # Query temperature statistics for dates greater than or equal to the specified start
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start_date).all()
+        filter(Measurement.date >= start).all()
 
     # Convert the query results to a list of dictionaries with TMIN, TAVG, and TMAX
     calc_tobs = []
@@ -138,18 +140,18 @@ def calc_temps_start(start_date):
         calc_tobs_dict["TMAX"] = row[2]
         calc_tobs.append(calc_tobs_dict)
 
-    # Return the JSON representation of temperature statistics (TMIN, TAVG, TMAX) for the specified start_date
+    # Return the JSON representation of temperature statistics (TMIN, TAVG, TMAX) for the specified start
     return jsonify(calc_tobs)
 
 
 # Route to calculate temperature statistics (TMIN, TAVG, TMAX) within a specified date range
-@app.route("/api/v1.0/<start_date>/<end_date>")
-def calc_temps_start_end(start_date, end_date):
+@app.route("/api/v1.0/<start>/<end>")
+def calc_temps_start_end(start, end):
     """Return the JSON representation of temperature statistics (TMIN, TAVG, TMAX) for a list of dates within a specified date range."""
     # Query temperature statistics for dates within the specified date range
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).\
-        filter(Measurement.date <= end_date).all()
+        filter(Measurement.date <= end).all()
 
     # Convert the query results to a list of dictionaries with TMIN, TAVG, and TMAX
     calc_tobs = []
